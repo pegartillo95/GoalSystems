@@ -63,6 +63,56 @@ Programación SQL
         Piso VARCHAR(100)
     );
     ```
-13. 
-14. 
-15. 
+13. Esta es la query con la que podemos coseguir las direcciones ordenadas segun los apellidos  
+    ```sql
+    SELECT 
+        Empleado.Apellido,
+        Viviendas.Ciudad,
+        Viviendas.Calle,
+        Viviendas.Piso
+    FROM
+        Empleado,
+        ViviendasPersona,
+        Viviendas
+    WHERE
+        Empleado.Id = Viviendaspersona.IdPersona
+            && ViviendasPersona.Vivienda = Viviendas.IdVivienda
+    ORDER BY Empleado.Apellido;
+    ```
+14. Necesitamos añadir dos nuevos campos a la tabla usada en los dos anteriores apartados, salario y fecha de contratación.
+    Seguiré el standard de escribir las fechas con el formato "yyyymmdd" (primero año, luego mes y luego dia todo junto) pero en mi caso tendre en cuenta solo el año y el mes, es decir "yyyymm".
+    ```sql
+    CREATE TABLE Empleado (
+        ID NUMERIC NOT NULL PRIMARY KEY,
+        Nombre VARCHAR(100) NOT NULL,
+        Apellido VARCHAR(100) NOT NULL,
+        Salario NUMERIC(10 , 2 ) NOT NULL,
+        FechaContrato NUMERIC(6) NOT NULL,
+        ViviendaHabit VARCHAR(100) NOT NULL REFERENCES Viviendas (IdVivienda)
+        ON DELETE CASCADE
+    );
+    ```
+    La query necesaria para hacer dicho cambio en la base de datos es la siguiente
+    ```sql
+    UPDATE Empleado 
+    SET 
+        Salario = Salario * 1.1
+    WHERE
+        PERIOD_DIFF((YEAR(NOW()) * 100) + MONTH(NOW()),
+                FechaContrato) >= 20 * 12;
+    ```
+
+15. Usando las mismas tablas que en el apartado anterior
+    ```sql
+    SELECT 
+        Viviendas.ciudad, COUNT(Viviendas.Ciudad)
+    FROM
+        Empleado,
+        ViviendasPersona,
+        Viviendas
+    WHERE
+        Empleado.id = viviendaspersona.IDPERSONA
+            && ViviendasPersona.Vivienda = Viviendas.IdVivienda
+            && Viviendas.IdVivienda = Empleado.ViviendaHabit
+    GROUP BY Viviendas.Ciudad
+    ```
